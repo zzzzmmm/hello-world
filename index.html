@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+</head>
+<body>
+
+<p>计数: <output id="result"></output></p>
+<button onclick="startWorker()">开始 Worker</button>
+<button onclick="stopWorker()">停止 Worker</button>
+<br /><br />
+
+<script>
+    var w;
+
+    function startWorker()
+    {
+        /*在创建 web worker 之前，请检测用户的浏览器是否支持它：*/
+        if(typeof(Worker)!=="undefined")
+        {
+
+            console.log(w);
+            //检测是否存在 worker，如果不存在，- 它会创建一个新的 web worker 对象，然后运行 "demo_workers.js"
+            if(typeof(w)=="undefined")
+            {
+                w=new Worker("demo_workers.js");
+                console.log(w);
+            }
+            //向 web worker 添加一个 "onmessage" 事件监听器：
+            w.onmessage = function (event) {
+                //当 web worker 传递消息时，会执行事件监听器中的代码。event.data 中存有来自 event.data 的数据。
+                document.getElementById("result").innerHTML=event.data;
+            };
+        }
+        else
+        {
+
+            document.getElementById("result").innerHTML="Sorry, your browser does not support Web Workers...";
+        }
+    }
+
+    function stopWorker()
+    {
+        /*如需终止 web worker，并释放浏览器/计算机资源，请使用 terminate() 方法：*/
+        w.terminate();
+    }
+</script>
+<script>
+    // 创建一个Socket实例
+    var socket = new WebSocket('ws://127.0.0.1:3000');
+
+    // 打开Socket
+    socket.onopen = function(event) {
+
+        // 发送一个初始化消息
+        socket.send('I am the client and I\'m listening!');
+
+        // 监听消息
+        socket.onmessage = function(event) {
+            console.log('Client received a message',event);
+        };
+
+        // 监听Socket的关闭
+        socket.onclose = function(event) {
+            console.log('Client notified socket has closed',event);
+        };
+
+        // 关闭Socket....
+        //socket.close()
+    };
+</script>
+</body>
+</html>
